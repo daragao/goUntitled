@@ -1,0 +1,9 @@
+{
+	"app_url" : "127.0.0.1:3333",
+	"database" : {
+		"host"          : "localhost",
+		"user"          : "gouser",
+		"password"      : "gouser",
+        "database_name" : "go_untitled"
+	}
+}
