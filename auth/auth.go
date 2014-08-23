@@ -3,10 +3,14 @@ package auth
 import (
 	"database/sql"
 	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+
+	"log"
+	"os"
 
 	"code.google.com/p/go.crypto/bcrypt"
 	"crypto/rand"
@@ -48,9 +52,27 @@ func Login(r *http.Request) (bool, error) {
 	return true, nil
 }
 
+var Logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
+
 // Register attempts to register the user given a request.
 func Register(r *http.Request) (bool, error) {
-	username, password := r.FormValue("username"), r.FormValue("password")
+
+	Logger.Printf("BODY: %s", r.Body)
+	decoder := json.NewDecoder(r.Body)
+	reqUser := struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}{}
+	err := decoder.Decode(&reqUser)
+	if err != nil {
+		panic("didnt decode")
+	}
+	username := reqUser.Username
+	password := reqUser.Password
+
+	Logger.Printf("%s - %s", username, password)
+
+	//username, password := r.FormValue("username"), r.FormValue("password")
 	u, err := models.GetUserByUsername(username)
 	// If we have an error which is not simply indicating that no user was found, report it
 	if err != sql.ErrNoRows {
